@@ -12,7 +12,6 @@ import time
 import requests
 import os
 import json
-from dotenv import load_dotenv
 from datetime import datetime
 
 import duckdb
