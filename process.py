@@ -64,8 +64,11 @@ def process_score_event(evt: dict):
     logger.info(f"---------------------------------------------------------")
     logger.info(f"|                     START SCORING                     |")
     logger.info(f"|                                                       |")
-    
-
+    start_time = time.time()
+    logger.info(f"|    Start time:  {start_time} secs               |")
+    logger.info(f"|                                                       |")
+    logger.info(f"|                                                       |")
+    logger.info(f"|                                                       |")
     
     # load the training data from data providers
     # duckDB is used to load the data and aggregated them in one single datasets
@@ -118,9 +121,6 @@ def process_score_event(evt: dict):
         privateKey=prv_file.read()
     key = RSA.importKey(privateKey)
     cipher = PKCS1_OAEP.new(key)
-
-    start_time = time.time()
-    logger.info(f"|    Start time:  {start_time} secs               |")
 
     logger.info(f"| 1. Match data with data providers                     |")
     logger.info(f"|    {DATA_PROVIDER_1_URL} |")
