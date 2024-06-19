@@ -65,7 +65,7 @@ def process_score_event(evt: dict):
     logger.info(f"|                     START SCORING                     |")
     logger.info(f"|                                                       |")
     start_time = time.time()
-    logger.info(f"|    Start time:  {start_time} secs                |")
+    logger.info(f"|    Start time:  {start_time} secs               |")
     logger.info(f"|                                                       |")
     # load the training data from data providers
     # duckDB is used to load the data and aggregated them in one single datasets
@@ -88,7 +88,7 @@ def process_score_event(evt: dict):
     # DATA_PROVIDER_3_REGION = os.environ.get("DATA_PROVIDER_3_REGION", "")
 
     #load data access configs
-    logger.info(f"|     LOAD CONFIG: "+input_dir+'/data-provider-1.json')
+    logger.info("|     LOAD CONFIG: "+input_dir+'/data-provider-1.json'")
     with open(input_dir+'/data-provider-1.json', 'r', newline='') as file:
         jsonFile = json.load(file)
         DATA_PROVIDER_1_URL=jsonFile["DATA_PROVIDER_URL"]
@@ -96,14 +96,14 @@ def process_score_event(evt: dict):
         DATA_PROVIDER_1_KEY=jsonFile["DATA_PROVIDER_KEY"]
         DATA_PROVIDER_1_SECRET=jsonFile["DATA_PROVIDER_SECRET"]
     
-     logger.info(f"|     LOAD CONFIG: "+input_dir+'/data-provider-2.json')
+     logger.info("|     LOAD CONFIG: "+input_dir+'/data-provider-2.json'")
     with open(input_dir+'/data-provider-2.json', 'r', newline='') as file:
         jsonFile = json.load(file)
         DATA_PROVIDER_2_URL=jsonFile["DATA_PROVIDER_URL"]
         DATA_PROVIDER_2_ENCRYPTION_KEY=jsonFile["DATA_PROVIDER_ENCRYPTION_KEY"]
         DATA_PROVIDER_2_CONNECTION_KEY=jsonFile["DATA_PROVIDER_CONNECTION_KEY"]
 
-     logger.info(f"|     LOAD CONFIG: "+input_dir+'/data-provider-3.json')
+     logger.info("|     LOAD CONFIG: "+input_dir+'/data-provider-3.json'")
     with open(input_dir+'/data-provider-3.json', 'r', newline='') as file:
         jsonFile = json.load(file)
         DATA_PROVIDER_3_URL=jsonFile["DATA_PROVIDER_URL"]
