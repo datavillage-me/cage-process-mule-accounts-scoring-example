@@ -88,7 +88,8 @@ def process_score_event(evt: dict):
     # DATA_PROVIDER_3_REGION = os.environ.get("DATA_PROVIDER_3_REGION", "")
 
     #load data access configs
-    logger.info("|     LOAD CONFIG: "+input_dir+"/data-provider-1.json")
+    logger.info(f"|         HELLO                                  |")
+    logger.info("|     LOAD CONFIG: /resources/data/data-provider-1.json")
     with open(input_dir+'/data-provider-1.json', 'r', newline='') as file:
         jsonFile = json.load(file)
         DATA_PROVIDER_1_URL=jsonFile["DATA_PROVIDER_URL"]
