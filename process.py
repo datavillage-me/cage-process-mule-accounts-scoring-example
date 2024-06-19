@@ -13,6 +13,9 @@ import requests
 import os
 import json
 from datetime import datetime
+import base64
+from Crypto.Cipher import PKCS1_OAEP
+from Crypto.PublicKey import RSA
 
 import duckdb
 
@@ -23,6 +26,7 @@ import pandas as pd
 logger = logging.getLogger(__name__)
 
 input_dir = "/resources/data"
+#input_dir = "config"
 output_dir = "/resources/outputs"
 
 # let the log go to stdout, as it will be captured by the cage operator
@@ -84,20 +88,23 @@ def process_score_event(evt: dict):
     # DATA_PROVIDER_3_REGION = os.environ.get("DATA_PROVIDER_3_REGION", "")
 
     #load data access configs
-    with open('/resources/data/data-provider-1.json', 'r', newline='') as file:
+    logger.info(f"|     LOAD CONFIG: "+input_dir+'/data-provider-1.json')
+    with open(input_dir+'/data-provider-1.json', 'r', newline='') as file:
         jsonFile = json.load(file)
         DATA_PROVIDER_1_URL=jsonFile["DATA_PROVIDER_URL"]
         DATA_PROVIDER_1_ENCRYPTION_KEY=jsonFile["DATA_PROVIDER_ENCRYPTION_KEY"]
         DATA_PROVIDER_1_KEY=jsonFile["DATA_PROVIDER_KEY"]
         DATA_PROVIDER_1_SECRET=jsonFile["DATA_PROVIDER_SECRET"]
     
-    with open('/resources/data/data-provider-2.json', 'r', newline='') as file:
+     logger.info(f"|     LOAD CONFIG: "+input_dir+'/data-provider-2.json')
+    with open(input_dir+'/data-provider-2.json', 'r', newline='') as file:
         jsonFile = json.load(file)
         DATA_PROVIDER_2_URL=jsonFile["DATA_PROVIDER_URL"]
         DATA_PROVIDER_2_ENCRYPTION_KEY=jsonFile["DATA_PROVIDER_ENCRYPTION_KEY"]
         DATA_PROVIDER_2_CONNECTION_KEY=jsonFile["DATA_PROVIDER_CONNECTION_KEY"]
 
-    with open('/resources/data/data-provider-3.json', 'r', newline='') as file:
+     logger.info(f"|     LOAD CONFIG: "+input_dir+'/data-provider-3.json')
+    with open(input_dir+'/data-provider-3.json', 'r', newline='') as file:
         jsonFile = json.load(file)
         DATA_PROVIDER_3_URL=jsonFile["DATA_PROVIDER_URL"]
         DATA_PROVIDER_3_ENCRYPTION_KEY=jsonFile["DATA_PROVIDER_ENCRYPTION_KEY"]
@@ -106,9 +113,10 @@ def process_score_event(evt: dict):
         DATA_PROVIDER_3_REGION=jsonFile["DATA_PROVIDER_REGION"]
 
     #load private keys
-    with open ("demo-keys/private.pem", "r") as prv_file:
-        privateKey=prv_file
-    print (privateKey)
+    with open ("demo-keys/key.pem", "r") as prv_file:
+        privateKey=prv_file.read()
+    key = RSA.importKey(privateKey)
+    cipher = PKCS1_OAEP.new(key)
 
     logger.info(f"| 1. Match data with data providers                     |")
     logger.info(f"|    {DATA_PROVIDER_1_URL} |")
@@ -139,7 +147,8 @@ def process_score_event(evt: dict):
     logger.info(f"|                                                       |")
     logger.info(f"| 2. Calculate scoring                                  |")
     for x in range(len(accountsList)):
-        accountId=accountsList[x]
+        accountId=base64.b64decode(accountsList[x])
+        accountId = cipher.decrypt(accountId).decode("utf-8")
         muleOutput=find_mule_account(f"SELECT * from local WHERE account_id='{accountId}'")
         if muleOutput!="" :
             output=output+muleOutput+","
@@ -213,6 +222,15 @@ if __name__ == "__main__":
             "GB82EVJA51473322705367",
             "RO79OSQB3432547082039702",
             "DK311448088022695900"
+        ]
+    }
+
+    test_event = {
+        "type": "SCORE",
+        "accounts": [
+            "QNNDw0tOznVkK7s4uBL8e0D+UKL8QvzsplSj1GrbKwLoe78pStcczgkrEhhfn7gft8QTc2vexv3AamlVVXSfjw2zddyXQWWJARMiXWICAJ9BP82Ph4Hf+to+zcdLuu9CQqcfylNIgADTqnNj8rzuOuS3fnaTuLXrbcmpLUypVmLPNTef9s/tMQgKY68/ksYfOcOx3rT300xGpMihIGfkOTI6qfFHZecexWesFzqS3G7QZ2Sh4OfKH5kJQDvBPB1t78zHUHTLSnv54ZinJyd7EJoe/ylXphCqAqLeSLnWDIMBZ1/Su40Xko66e+sCdvAO6ocJ9RQgspFTqrlFh9DauA==",
+            "aWlRsY35ks028GkbBWuCxtgR4VGc3N/YHwLbSg1wYDM6Q2qxfrUH/AoVIpvzHmOu7pxAxqXG1u6lwXxTrDB8hwwnkHqIApp9V+5p4XcFAgkX/QfDeIcmjQwRJImC0ZG5OfFdqkdyX9eKQtuDaSdVhp/wntLO4pDu2SWUtaJQrnqIU+/bHJHANyIvXnmAeBF6JGxjSFE4yN9Tce53PRDH3KqTLlgBgDcz+RZAoY5YgU64Hds6iRO/dcN54MSlwuRMwXZNaNBTfLFS8kNiD2APRvvyvBPZO41z89t8SlqlEkmK22Lp3c5up0HGBYmmXUSyOK6LJG4CsvgRdWNBfhqdjA==",
+            "GS7IShwjX6+A3gIrN6vXdfed71gCVVRE0QHDhdyU3PK/FcxWv8qb0Y3y8+y4mPgl+VArIuM7/Q6er2iW+oGyZwhzlXuwrVDBRoAb/IHaGVv/eAAVTJdfVLG60H/bLO4gkXxIsQyoAbBiWfdo7M/6y5ClCsyJM5jsA0Li2DdtaCK1/Nsn9Rm7xMcDNlLE6yuNE9WCUembO0mdp+dwJ4TstVRbwbj0aQP48bSN/+yxIZ+4IOLDhH4D8TK3kzzwKSrtiP0kUSBBjyRBktpALMgP+7qruFNN4L1P598HM6UBFjuj6e5aQdN5T7CgW3F3ut5cPt3vx9Lo7GVCZbDJEp88Ag=="
         ]
     }
 
