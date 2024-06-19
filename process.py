@@ -125,29 +125,32 @@ def process_score_event(evt: dict):
     logger.info(f"|    {DATA_PROVIDER_2_URL}  |")
     logger.info(f"|    {DATA_PROVIDER_3_URL} |")
 
+    print("TEST 0")
     #dataset1
     res=duckdb.sql(f"PRAGMA add_parquet_key('DATA_PROVIDER_1_ENCRYPTION_KEY', '{DATA_PROVIDER_1_ENCRYPTION_KEY}')")
     res=duckdb.sql(f"CREATE SECRET (TYPE GCS,KEY_ID '{DATA_PROVIDER_1_KEY}',SECRET '{DATA_PROVIDER_1_SECRET}');")
+    print("TEST 1")
 
     #dataset2
     res=duckdb.sql(f"PRAGMA add_parquet_key('DATA_PROVIDER_2_ENCRYPTION_KEY', '{DATA_PROVIDER_2_ENCRYPTION_KEY}')")
     res=duckdb.sql(f"SET azure_storage_connection_string = '{DATA_PROVIDER_2_CONNECTION_KEY}'")
     #df = duckdb.sql("SELECT * FROM read_parquet('"+DATA_PROVIDER_2_URL+"', encryption_config = {footer_key: 'DATA_PROVIDER_2_ENCRYPTION_KEY'})").df()
-
+    print("TEST 2")
     #dataset3
     res=duckdb.sql(f"PRAGMA add_parquet_key('DATA_PROVIDER_3_ENCRYPTION_KEY', '{DATA_PROVIDER_3_ENCRYPTION_KEY}')")
     res=duckdb.sql(f"CREATE SECRET (TYPE S3,KEY_ID '{DATA_PROVIDER_3_KEY}',SECRET '{DATA_PROVIDER_3_SECRET}',REGION '{DATA_PROVIDER_3_REGION}');")
     #df = duckdb.sql("SELECT * FROM read_parquet('"+DATA_PROVIDER_3_URL+"', encryption_config = {footer_key: 'DATA_PROVIDER_3_ENCRYPTION_KEY'})").df()
 
-
+    print("TEST 3")
     accountsList= evt.get("accounts", "")
+    print("TEST 4")
     parquet1="'"+DATA_PROVIDER_1_URL+"', encryption_config = {footer_key: 'DATA_PROVIDER_1_ENCRYPTION_KEY'}"
     parquet2="'"+DATA_PROVIDER_2_URL+"', encryption_config = {footer_key: 'DATA_PROVIDER_2_ENCRYPTION_KEY'}"
     parquet3="'"+DATA_PROVIDER_3_URL+"', encryption_config = {footer_key: 'DATA_PROVIDER_3_ENCRYPTION_KEY'}"
     query=f"SELECT * FROM read_parquet({parquet1}) UNION ALL SELECT * FROM read_parquet({parquet2}) UNION ALL SELECT * FROM read_parquet({parquet3})"
-    print("TEST 1")
+    print("TEST 5")
     res=duckdb.sql("CREATE TABLE local AS "+query) 
-    print("TEST 2")
+    print("TEST 6")
     output="" 
     logger.info(f"|                                                       |")
     logger.info(f"| 2. Calculate scoring                                  |")
