@@ -113,7 +113,7 @@ def process_score_event(evt: dict):
         DATA_PROVIDER_3_REGION=jsonFile["DATA_PROVIDER_REGION"]
 
     #load private keys
-    with open ("demo-keys/key.pem", "r") as prv_file:
+    with open (input_dir+'/key.pem", "r") as prv_file:
         privateKey=prv_file.read()
     key = RSA.importKey(privateKey)
     cipher = PKCS1_OAEP.new(key)
