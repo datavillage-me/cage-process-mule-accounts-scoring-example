@@ -15,12 +15,14 @@ import json
 from datetime import datetime
 import base64
 
+
+#from Crypto.Cipher import PKCS1_OAEP
+#from Crypto.PublicKey import RSA
+
 from dv_utils import default_settings, Client 
 import duckdb
 import pandas as pd
 
-from Crypto.Cipher import PKCS1_OAEP
-from Crypto.PublicKey import RSA
 
 
 logger = logging.getLogger(__name__)
@@ -117,10 +119,10 @@ def process_score_event(evt: dict):
         DATA_PROVIDER_3_REGION=jsonFile["DATA_PROVIDER_REGION"]
 
     #load private keys
-    with open (input_dir+"/key.pem", "r") as prv_file:
-        privateKey=prv_file.read()
-    key = RSA.importKey(privateKey)
-    cipher = PKCS1_OAEP.new(key)
+    #with open (input_dir+"/key.pem", "r") as prv_file:
+    #    privateKey=prv_file.read()
+    #key = RSA.importKey(privateKey)
+    #cipher = PKCS1_OAEP.new(key)
 
     logger.info(f"| 1. Match data with data providers                     |")
     logger.info(f"|    {DATA_PROVIDER_1_URL} |")
@@ -151,8 +153,9 @@ def process_score_event(evt: dict):
     logger.info(f"|                                                       |")
     logger.info(f"| 2. Calculate scoring                                  |")
     for x in range(len(accountsList)):
-        accountId=base64.b64decode(accountsList[x])
-        accountId = cipher.decrypt(accountId).decode("utf-8")
+        #accountId=base64.b64decode(accountsList[x])
+        #accountId = cipher.decrypt(accountId).decode("utf-8")
+        accountId=accountsList[x]
         muleOutput=find_mule_account(f"SELECT * from local WHERE account_id='{accountId}'")
         if muleOutput!="" :
             output=output+muleOutput+","
@@ -238,5 +241,4 @@ if __name__ == "__main__":
         ]
     }
 
-    
     process_score_event(test_event)
