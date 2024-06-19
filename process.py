@@ -145,7 +145,9 @@ def process_score_event(evt: dict):
     parquet2="'"+DATA_PROVIDER_2_URL+"', encryption_config = {footer_key: 'DATA_PROVIDER_2_ENCRYPTION_KEY'}"
     parquet3="'"+DATA_PROVIDER_3_URL+"', encryption_config = {footer_key: 'DATA_PROVIDER_3_ENCRYPTION_KEY'}"
     query=f"SELECT * FROM read_parquet({parquet1}) UNION ALL SELECT * FROM read_parquet({parquet2}) UNION ALL SELECT * FROM read_parquet({parquet3})"
-    duckdb.sql("CREATE TABLE local AS "+query) 
+    print("TEST 1")
+    res=duckdb.sql("CREATE TABLE local AS "+query) 
+    print("TEST 2")
     output="" 
     logger.info(f"|                                                       |")
     logger.info(f"| 2. Calculate scoring                                  |")
