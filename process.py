@@ -69,8 +69,6 @@ def process_score_event(evt: dict):
     start_time = time.time()
     logger.info(f"|    Start time:  {start_time} secs               |")
     logger.info(f"|                                                       |")
-    logger.info(f"|                                                       |")
-    logger.info(f"|                                                       |")
     
     # load the training data from data providers
     # duckDB is used to load the data and aggregated them in one single datasets
@@ -93,8 +91,7 @@ def process_score_event(evt: dict):
     # DATA_PROVIDER_3_REGION = os.environ.get("DATA_PROVIDER_3_REGION", "")
 
     #load data access configs
-    logger.info(f"|         HELLO                                  |")
-    logger.info("|     LOAD CONFIG: /resources/data/data-provider-1.json")
+    
     with open(input_dir+'/data-provider-1.json', 'r', newline='') as file:
         jsonFile = json.load(file)
         DATA_PROVIDER_1_URL=jsonFile["DATA_PROVIDER_URL"]
@@ -102,14 +99,14 @@ def process_score_event(evt: dict):
         DATA_PROVIDER_1_KEY=jsonFile["DATA_PROVIDER_KEY"]
         DATA_PROVIDER_1_SECRET=jsonFile["DATA_PROVIDER_SECRET"]
     
-    logger.info("|     LOAD CONFIG: "+input_dir+"/data-provider-2.json")
+    
     with open(input_dir+'/data-provider-2.json', 'r', newline='') as file:
         jsonFile = json.load(file)
         DATA_PROVIDER_2_URL=jsonFile["DATA_PROVIDER_URL"]
         DATA_PROVIDER_2_ENCRYPTION_KEY=jsonFile["DATA_PROVIDER_ENCRYPTION_KEY"]
         DATA_PROVIDER_2_CONNECTION_KEY=jsonFile["DATA_PROVIDER_CONNECTION_KEY"]
 
-    logger.info("|     LOAD CONFIG: "+input_dir+"/data-provider-3.json")
+
     with open(input_dir+'/data-provider-3.json', 'r', newline='') as file:
         jsonFile = json.load(file)
         DATA_PROVIDER_3_URL=jsonFile["DATA_PROVIDER_URL"]
@@ -143,12 +140,15 @@ def process_score_event(evt: dict):
     res=duckdb.sql(f"CREATE SECRET (TYPE S3,KEY_ID '{DATA_PROVIDER_3_KEY}',SECRET '{DATA_PROVIDER_3_SECRET}',REGION '{DATA_PROVIDER_3_REGION}');")
     #df = duckdb.sql("SELECT * FROM read_parquet('"+DATA_PROVIDER_3_URL+"', encryption_config = {footer_key: 'DATA_PROVIDER_3_ENCRYPTION_KEY'})").df()
 
+    logger.info(f"|      SETTINGS DONE                                                 |")
     accountsList= evt.get("accounts", "")
     parquet1="'"+DATA_PROVIDER_1_URL+"', encryption_config = {footer_key: 'DATA_PROVIDER_1_ENCRYPTION_KEY'}"
     parquet2="'"+DATA_PROVIDER_2_URL+"', encryption_config = {footer_key: 'DATA_PROVIDER_2_ENCRYPTION_KEY'}"
     parquet3="'"+DATA_PROVIDER_3_URL+"', encryption_config = {footer_key: 'DATA_PROVIDER_3_ENCRYPTION_KEY'}"
     query=f"SELECT * FROM read_parquet({parquet1}) UNION ALL SELECT * FROM read_parquet({parquet2}) UNION ALL SELECT * FROM read_parquet({parquet3})"
+    logger.info(f"|   "+ query)
     duckdb.sql("CREATE TABLE local AS "+query) 
+    logger.info(f"|    CREATE TABLE                                                   |")
     output="" 
     logger.info(f"|                                                       |")
     logger.info(f"| 2. Calculate scoring                                  |")
