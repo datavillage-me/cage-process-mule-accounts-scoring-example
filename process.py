@@ -16,8 +16,8 @@ from datetime import datetime
 import base64
 
 
-#from Crypto.Cipher import PKCS1_OAEP
 #from Crypto.PublicKey import RSA
+#from Crypto.Cipher import PKCS1_OAEP
 
 from dv_utils import default_settings, Client 
 import duckdb
@@ -118,8 +118,7 @@ def process_score_event(evt: dict):
     #load private keys
     #with open (input_dir+"/key.pem", "r") as prv_file:
     #    privateKey=prv_file.read()
-    #key = RSA.importKey(privateKey)
-    #cipher = PKCS1_OAEP.new(key)
+    #cipher = PKCS1_OAEP.new(privateKey)
 
     logger.info(f"| 1. Match data with data providers                     |")
     logger.info(f"|    {DATA_PROVIDER_1_URL} |")
@@ -140,15 +139,13 @@ def process_score_event(evt: dict):
     res=duckdb.sql(f"CREATE SECRET (TYPE S3,KEY_ID '{DATA_PROVIDER_3_KEY}',SECRET '{DATA_PROVIDER_3_SECRET}',REGION '{DATA_PROVIDER_3_REGION}');")
     #df = duckdb.sql("SELECT * FROM read_parquet('"+DATA_PROVIDER_3_URL+"', encryption_config = {footer_key: 'DATA_PROVIDER_3_ENCRYPTION_KEY'})").df()
 
-    logger.info(f"|      SETTINGS DONE                                                 |")
+
     accountsList= evt.get("accounts", "")
     parquet1="'"+DATA_PROVIDER_1_URL+"', encryption_config = {footer_key: 'DATA_PROVIDER_1_ENCRYPTION_KEY'}"
     parquet2="'"+DATA_PROVIDER_2_URL+"', encryption_config = {footer_key: 'DATA_PROVIDER_2_ENCRYPTION_KEY'}"
     parquet3="'"+DATA_PROVIDER_3_URL+"', encryption_config = {footer_key: 'DATA_PROVIDER_3_ENCRYPTION_KEY'}"
     query=f"SELECT * FROM read_parquet({parquet1}) UNION ALL SELECT * FROM read_parquet({parquet2}) UNION ALL SELECT * FROM read_parquet({parquet3})"
-    logger.info(f"|   "+ query)
     duckdb.sql("CREATE TABLE local AS "+query) 
-    logger.info(f"|    CREATE TABLE                                                   |")
     output="" 
     logger.info(f"|                                                       |")
     logger.info(f"| 2. Calculate scoring                                  |")
@@ -167,7 +164,7 @@ def process_score_event(evt: dict):
     ]
     }
     '''
-    
+    print(collaborationOutput)
     logger.info(f"|                                                       |")
     logger.info(f"| 3. Send scoring report                                |")
     with open('/resources/outputs/scoring-report.json', 'w', newline='') as file:
@@ -223,6 +220,16 @@ if __name__ == "__main__":
         ]
     }
 
+    
+    test_event = {
+        "type": "SCORE",
+        "accounts": [
+            "QNNDw0tOznVkK7s4uBL8e0D+UKL8QvzsplSj1GrbKwLoe78pStcczgkrEhhfn7gft8QTc2vexv3AamlVVXSfjw2zddyXQWWJARMiXWICAJ9BP82Ph4Hf+to+zcdLuu9CQqcfylNIgADTqnNj8rzuOuS3fnaTuLXrbcmpLUypVmLPNTef9s/tMQgKY68/ksYfOcOx3rT300xGpMihIGfkOTI6qfFHZecexWesFzqS3G7QZ2Sh4OfKH5kJQDvBPB1t78zHUHTLSnv54ZinJyd7EJoe/ylXphCqAqLeSLnWDIMBZ1/Su40Xko66e+sCdvAO6ocJ9RQgspFTqrlFh9DauA==",
+            "aWlRsY35ks028GkbBWuCxtgR4VGc3N/YHwLbSg1wYDM6Q2qxfrUH/AoVIpvzHmOu7pxAxqXG1u6lwXxTrDB8hwwnkHqIApp9V+5p4XcFAgkX/QfDeIcmjQwRJImC0ZG5OfFdqkdyX9eKQtuDaSdVhp/wntLO4pDu2SWUtaJQrnqIU+/bHJHANyIvXnmAeBF6JGxjSFE4yN9Tce53PRDH3KqTLlgBgDcz+RZAoY5YgU64Hds6iRO/dcN54MSlwuRMwXZNaNBTfLFS8kNiD2APRvvyvBPZO41z89t8SlqlEkmK22Lp3c5up0HGBYmmXUSyOK6LJG4CsvgRdWNBfhqdjA==",
+            "GS7IShwjX6+A3gIrN6vXdfed71gCVVRE0QHDhdyU3PK/FcxWv8qb0Y3y8+y4mPgl+VArIuM7/Q6er2iW+oGyZwhzlXuwrVDBRoAb/IHaGVv/eAAVTJdfVLG60H/bLO4gkXxIsQyoAbBiWfdo7M/6y5ClCsyJM5jsA0Li2DdtaCK1/Nsn9Rm7xMcDNlLE6yuNE9WCUembO0mdp+dwJ4TstVRbwbj0aQP48bSN/+yxIZ+4IOLDhH4D8TK3kzzwKSrtiP0kUSBBjyRBktpALMgP+7qruFNN4L1P598HM6UBFjuj6e5aQdN5T7CgW3F3ut5cPt3vx9Lo7GVCZbDJEp88Ag=="
+        ]
+    }
+
     test_event = {
         "type": "SCORE",
         "accounts": [
@@ -232,13 +239,5 @@ if __name__ == "__main__":
         ]
     }
 
-    test_event = {
-        "type": "SCORE",
-        "accounts": [
-            "QNNDw0tOznVkK7s4uBL8e0D+UKL8QvzsplSj1GrbKwLoe78pStcczgkrEhhfn7gft8QTc2vexv3AamlVVXSfjw2zddyXQWWJARMiXWICAJ9BP82Ph4Hf+to+zcdLuu9CQqcfylNIgADTqnNj8rzuOuS3fnaTuLXrbcmpLUypVmLPNTef9s/tMQgKY68/ksYfOcOx3rT300xGpMihIGfkOTI6qfFHZecexWesFzqS3G7QZ2Sh4OfKH5kJQDvBPB1t78zHUHTLSnv54ZinJyd7EJoe/ylXphCqAqLeSLnWDIMBZ1/Su40Xko66e+sCdvAO6ocJ9RQgspFTqrlFh9DauA==",
-            "aWlRsY35ks028GkbBWuCxtgR4VGc3N/YHwLbSg1wYDM6Q2qxfrUH/AoVIpvzHmOu7pxAxqXG1u6lwXxTrDB8hwwnkHqIApp9V+5p4XcFAgkX/QfDeIcmjQwRJImC0ZG5OfFdqkdyX9eKQtuDaSdVhp/wntLO4pDu2SWUtaJQrnqIU+/bHJHANyIvXnmAeBF6JGxjSFE4yN9Tce53PRDH3KqTLlgBgDcz+RZAoY5YgU64Hds6iRO/dcN54MSlwuRMwXZNaNBTfLFS8kNiD2APRvvyvBPZO41z89t8SlqlEkmK22Lp3c5up0HGBYmmXUSyOK6LJG4CsvgRdWNBfhqdjA==",
-            "GS7IShwjX6+A3gIrN6vXdfed71gCVVRE0QHDhdyU3PK/FcxWv8qb0Y3y8+y4mPgl+VArIuM7/Q6er2iW+oGyZwhzlXuwrVDBRoAb/IHaGVv/eAAVTJdfVLG60H/bLO4gkXxIsQyoAbBiWfdo7M/6y5ClCsyJM5jsA0Li2DdtaCK1/Nsn9Rm7xMcDNlLE6yuNE9WCUembO0mdp+dwJ4TstVRbwbj0aQP48bSN/+yxIZ+4IOLDhH4D8TK3kzzwKSrtiP0kUSBBjyRBktpALMgP+7qruFNN4L1P598HM6UBFjuj6e5aQdN5T7CgW3F3ut5cPt3vx9Lo7GVCZbDJEp88Ag=="
-        ]
-    }
 
     process_score_event(test_event)
