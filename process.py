@@ -12,6 +12,8 @@ import time
 import requests
 import os
 import json
+from dotenv import load_dotenv
+from datetime import datetime
 
 import duckdb
 
@@ -41,8 +43,8 @@ def event_processor(evt: dict):
 
     # dispatch events according to their type
     evt_type =evt.get("type", "")
-    if(evt_type == "BENCHMARK"):
-        process_benchmark_event(evt)
+    if(evt_type == "SCORE"):
+        process_score_event(evt)
     else:
         generic_event_processor(evt)
 
@@ -51,50 +53,165 @@ def generic_event_processor(evt: dict):
     # push an audit log to reccord for an event that is not understood
     logger.info(f"Received an unhandled event {evt}")
 
-def process_benchmark_event(evt: dict):
+def process_score_event(evt: dict):
     """
-    Train an XGBoost Classifier model using the logic given in 
+    Score mule accounts 
      """
+    load_dotenv()
 
-    logger.info(f"--------------------------------------------------")
-    logger.info(f"|               START BENCHMARKING               |")
-    logger.info(f"|                                                |")
+    logger.info(f"---------------------------------------------------------")
+    logger.info(f"|                     START SCORING                     |")
+    logger.info(f"|                                                       |")
+    start_time = time.time()
+    logger.info(f"|    Start time:  {start_time} secs                |")
+    logger.info(f"|                                                       |")
     # load the training data from data providers
     # duckDB is used to load the data and aggregated them in one single datasets
-    logger.info(f"| 1. Load data from data providers               |")
-    logger.info(f"|    https://github.com/./beneficiaries1.parquet |")
-    logger.info(f"|    https://github.com/./beneficiaries2.parquet |")
-    dataProvider1URL="https://github.com/datavillage-me/cage-process-white-list-beneficiaries-benchmarking-example/raw/main/data/beneficiaries-encrypted1.parquet"
-    dataProvider2URL="https://github.com/datavillage-me/cage-process-white-list-beneficiaries-benchmarking-example/raw/main/data/beneficiaries-encrypted2.parquet"
-    dataProvider3URL="https://github.com/datavillage-me/cage-process-white-list-beneficiaries-benchmarking-example/raw/main/data/beneficiaries-encrypted3.parquet"
-    dataProvider4URL="https://github.com/datavillage-me/cage-process-white-list-beneficiaries-benchmarking-example/raw/main/data/beneficiaries-encrypted4.parquet"
+
+    # DATA_PROVIDER_1_URL=os.environ.get("DATA_PROVIDER_1_URL", "")
+    # DATA_PROVIDER_2_URL=os.environ.get("DATA_PROVIDER_2_URL", "")
+    # DATA_PROVIDER_3_URL=os.environ.get("DATA_PROVIDER_3_URL", "")
+
+    # DATA_PROVIDER_1_ENCRYPTION_KEY = os.environ.get("DATA_PROVIDER_1_ENCRYPTION_KEY", "")
+    # DATA_PROVIDER_2_ENCRYPTION_KEY = os.environ.get("DATA_PROVIDER_2_ENCRYPTION_KEY", "")
+    # DATA_PROVIDER_3_ENCRYPTION_KEY = os.environ.get("DATA_PROVIDER_3_ENCRYPTION_KEY", "")
     
-    DATA_ENCRYPTION_KEY = os.environ.get("DATA_ENCRYPTION_KEY", "")
-    res=duckdb.sql("PRAGMA add_parquet_key('key256', '"+DATA_ENCRYPTION_KEY+"')")
-    start_time = time.time()
-    logger.info(f"|    Start time:  {start_time} secs |")
-    #df = duckdb.sql("SELECT beneficiaries1.AIR_TIME FROM read_parquet('"+dataProvider1URL+"') as beneficiaries1 WHERE beneficiaries1.AIR_TIME IN (SELECT AIR_TIME from read_parquet('"+dataProvider2URL+"') UNION SELECT AIR_TIME from read_parquet('"+dataProvider3URL+"') UNION SELECT AIR_TIME from read_parquet('"+dataProvider4URL+"'))").df()
-    df = duckdb.sql("SELECT FL_DATE from read_parquet('"+dataProvider2URL+"', encryption_config = {footer_key: 'key256'}) UNION ALL SELECT FL_DATE from read_parquet('"+dataProvider3URL+"', encryption_config = {footer_key: 'key256'}) UNION ALL SELECT FL_DATE from read_parquet('"+dataProvider4URL+"', encryption_config = {footer_key: 'key256'}) UNION ALL SELECT FL_DATE from read_parquet('"+dataProvider1URL+"', encryption_config = {footer_key: 'key256'})")
-    #df = duckdb.sql("DESCRIBE TABLE '"+dataProvider2URL+"'") 
-    #print(df)
+    # DATA_PROVIDER_1_KEY = os.environ.get("DATA_PROVIDER_1_KEY", "")
+    # DATA_PROVIDER_1_SECRET = os.environ.get("DATA_PROVIDER_1_SECRET", "")
 
+    # DATA_PROVIDER_2_CONNECTION_KEY = os.environ.get("DATA_PROVIDER_2_CONNECTION_KEY", "")
+    
+    # DATA_PROVIDER_3_KEY = os.environ.get("DATA_PROVIDER_3_KEY", "")
+    # DATA_PROVIDER_3_SECRET = os.environ.get("DATA_PROVIDER_3_SECRET", "")
+    # DATA_PROVIDER_3_REGION = os.environ.get("DATA_PROVIDER_3_REGION", "")
+
+    with open('/resources/data/data-provider-1.json', 'r', newline='') as file:
+        jsonFile = json.load(file)
+        DATA_PROVIDER_1_URL=jsonFile["DATA_PROVIDER_URL"]
+        DATA_PROVIDER_1_ENCRYPTION_KEY=jsonFile["DATA_PROVIDER_ENCRYPTION_KEY"]
+        DATA_PROVIDER_1_KEY=jsonFile["DATA_PROVIDER_KEY"]
+        DATA_PROVIDER_1_SECRET=jsonFile["DATA_PROVIDER_SECRET"]
+    
+    with open('/resources/data/data-provider-2.json', 'r', newline='') as file:
+        jsonFile = json.load(file)
+        DATA_PROVIDER_2_URL=jsonFile["DATA_PROVIDER_URL"]
+        DATA_PROVIDER_2_ENCRYPTION_KEY=jsonFile["DATA_PROVIDER_ENCRYPTION_KEY"]
+        DATA_PROVIDER_2_CONNECTION_KEY=jsonFile["DATA_PROVIDER_CONNECTION_KEY"]
+
+    with open('/resources/data/data-provider-3.json', 'r', newline='') as file:
+        jsonFile = json.load(file)
+        DATA_PROVIDER_3_URL=jsonFile["DATA_PROVIDER_URL"]
+        DATA_PROVIDER_3_ENCRYPTION_KEY=jsonFile["DATA_PROVIDER_ENCRYPTION_KEY"]
+        DATA_PROVIDER_3_KEY=jsonFile["DATA_PROVIDER_KEY"]
+        DATA_PROVIDER_3_SECRET=jsonFile["DATA_PROVIDER_SECRET"]
+        DATA_PROVIDER_3_REGION=jsonFile["DATA_PROVIDER_REGION"]
+
+
+    logger.info(f"| 1. Match data with data providers                     |")
+    logger.info(f"|    {DATA_PROVIDER_1_URL} |")
+    logger.info(f"|    {DATA_PROVIDER_2_URL}  |")
+    logger.info(f"|    {DATA_PROVIDER_3_URL} |")
+
+    #dataset1
+    res=duckdb.sql(f"PRAGMA add_parquet_key('DATA_PROVIDER_1_ENCRYPTION_KEY', '{DATA_PROVIDER_1_ENCRYPTION_KEY}')")
+    res=duckdb.sql(f"CREATE SECRET (TYPE GCS,KEY_ID '{DATA_PROVIDER_1_KEY}',SECRET '{DATA_PROVIDER_1_SECRET}');")
+
+    #dataset2
+    res=duckdb.sql(f"PRAGMA add_parquet_key('DATA_PROVIDER_2_ENCRYPTION_KEY', '{DATA_PROVIDER_2_ENCRYPTION_KEY}')")
+    res=duckdb.sql(f"SET azure_storage_connection_string = '{DATA_PROVIDER_2_CONNECTION_KEY}'")
+    #df = duckdb.sql("SELECT * FROM read_parquet('"+DATA_PROVIDER_2_URL+"', encryption_config = {footer_key: 'DATA_PROVIDER_2_ENCRYPTION_KEY'})").df()
+
+    #dataset3
+    res=duckdb.sql(f"PRAGMA add_parquet_key('DATA_PROVIDER_3_ENCRYPTION_KEY', '{DATA_PROVIDER_3_ENCRYPTION_KEY}')")
+    res=duckdb.sql(f"CREATE SECRET (TYPE S3,KEY_ID '{DATA_PROVIDER_3_KEY}',SECRET '{DATA_PROVIDER_3_SECRET}',REGION '{DATA_PROVIDER_3_REGION}');")
+    #df = duckdb.sql("SELECT * FROM read_parquet('"+DATA_PROVIDER_3_URL+"', encryption_config = {footer_key: 'DATA_PROVIDER_3_ENCRYPTION_KEY'})").df()
+
+    accountsList= evt.get("accounts", "")
+    parquet1="'"+DATA_PROVIDER_1_URL+"', encryption_config = {footer_key: 'DATA_PROVIDER_1_ENCRYPTION_KEY'}"
+    parquet2="'"+DATA_PROVIDER_2_URL+"', encryption_config = {footer_key: 'DATA_PROVIDER_2_ENCRYPTION_KEY'}"
+    parquet3="'"+DATA_PROVIDER_3_URL+"', encryption_config = {footer_key: 'DATA_PROVIDER_3_ENCRYPTION_KEY'}"
+    query=f"SELECT * FROM read_parquet({parquet1}) UNION ALL SELECT * FROM read_parquet({parquet2}) UNION ALL SELECT * FROM read_parquet({parquet3})"
+    duckdb.sql("CREATE TABLE local AS "+query) 
+    output="" 
+    logger.info(f"|                                                       |")
+    logger.info(f"| 2. Calculate scoring                                  |")
+    for x in range(len(accountsList)):
+        accountId=accountsList[x]
+        muleOutput=find_mule_account(f"SELECT * from local WHERE account_id='{accountId}'")
+        if muleOutput!="" :
+            output=output+muleOutput+","
+    if output!="" :
+        output=output[:-1]
+    collaborationOutput='''{
+    "report_date": "'''+datetime.today().strftime('%Y-%m-%d %H:%M:%S')+'''",
+    "accounts": [ '''+output+'''
+    ]
+    }
+    '''
+    
+    logger.info(f"|                                                       |")
+    logger.info(f"| 3. Send scoring report                                |")
+    with open('/resources/outputs/scoring-report.json', 'w', newline='') as file:
+        file.write(collaborationOutput)
+    logger.info(f"|                                                       |")
     execution_time=(time.time() - start_time)
-    logger.info(f"|    Execution time:  {execution_time} secs |")
-    logger.info(f"|    Number of records:  {len(df)}                |")
+    logger.info(f"|    Execution time:  {execution_time} secs           |")
+    logger.info(f"|                                                       |")
+    logger.info(f"--------------------------------------------------------")
 
-    logger.info(f"| 4. Save outputs of the collaboration           |")
-
-    with open('/resources/outputs/benchmark-report.json', 'w', newline='') as file:
-        file.write('{"Similar": "3230000","new": "628"}')
-    logger.info(f"| 3. Save benchmark-report                       |")
-    logger.info(f"|                                                |")
-    logger.info(f"--------------------------------------------------")
-    logger.info(f"|                                                |")
-    logger.info(f"--------------------------------------------------")
    
+def find_mule_account(query):
+    df = duckdb.sql(query).df()
+    numberOfScoringParties=0
+    combinedRiskScore=0
+    redFlags=""
+    accountHolderName=""
+    account_id=""
+    output=""
+    for index, row in df.iterrows():
+        account_id=row["account_id"]
+        accountHolderName=accountHolderName+'"'+row["account_holder_name"]+'",'
+        numberOfScoringParties=numberOfScoringParties+1
+        redFlagsArray=json.loads(row["red_flag"])["red_flags"]
+        for x in range(len(redFlagsArray)):
+            redFlags=redFlags+str(redFlagsArray[x])+","
+        combinedRiskScore=combinedRiskScore+row["risk_score"]
+    combinedRiskScore=combinedRiskScore/3
+    if account_id!= "":
+        output='''
+        {
+                "account_id": "'''+account_id+'''",
+                "account_holder_names": [
+                    '''+accountHolderName[:-1]+'''
+                ],
+                "combined_risk_score": "'''+str(int(combinedRiskScore))+'''",
+                "number_of_scoring_parties":"'''+str(numberOfScoringParties)+'''",
+                "red_flags": [
+                    '''+redFlags.replace("'","\"")[:-1]+'''
+                ]
+            }
+        '''
+    return output
+    
+
+
 
 if __name__ == "__main__":
     test_event = {
-            'type': 'BENCHMARK'
+        "type": "SCORE",
+        "accounts": [
+            "GB82EVJA51473322705367"
+        ]
     }
-    process_benchmark_event(test_event)
+
+    test_event = {
+        "type": "SCORE",
+        "accounts": [
+            "GB82EVJA51473322705367",
+            "RO79OSQB3432547082039702",
+            "DK311448088022695900"
+        ]
+    }
+
+    
+    process_score_event(test_event)
