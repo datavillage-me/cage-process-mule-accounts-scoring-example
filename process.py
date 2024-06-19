@@ -149,7 +149,7 @@ def process_score_event(evt: dict):
     parquet3="'"+DATA_PROVIDER_3_URL+"', encryption_config = {footer_key: 'DATA_PROVIDER_3_ENCRYPTION_KEY'}"
     query=f"SELECT * FROM read_parquet({parquet1}) UNION ALL SELECT * FROM read_parquet({parquet2}) UNION ALL SELECT * FROM read_parquet({parquet3})"
     logger.info("TEST 5")
-    res=duckdb.sql("CREATE TABLE local AS "+query) 
+    res=duckdb.sql("CREATE TABLE localdb AS "+query) 
     logger.info("TEST 6")
     output="" 
     logger.info(f"|                                                       |")
@@ -158,7 +158,7 @@ def process_score_event(evt: dict):
         #accountId=base64.b64decode(accountsList[x])
         #accountId = cipher.decrypt(accountId).decode("utf-8")
         accountId=accountsList[x]
-        muleOutput=find_mule_account(f"SELECT * from local WHERE account_id='{accountId}'")
+        muleOutput=find_mule_account(f"SELECT * from localdb WHERE account_id='{accountId}'")
         if muleOutput!="" :
             output=output+muleOutput+","
     if output!="" :
