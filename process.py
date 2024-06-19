@@ -67,6 +67,9 @@ def process_score_event(evt: dict):
     start_time = time.time()
     logger.info(f"|    Start time:  {start_time} secs               |")
     logger.info(f"|                                                       |")
+    logger.info(f"|                                                       |")
+    logger.info(f"|                                                       |")
+    
     # load the training data from data providers
     # duckDB is used to load the data and aggregated them in one single datasets
 
