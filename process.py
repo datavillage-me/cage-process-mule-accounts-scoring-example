@@ -56,7 +56,6 @@ def process_score_event(evt: dict):
     """
     Score mule accounts 
      """
-    load_dotenv()
 
     logger.info(f"---------------------------------------------------------")
     logger.info(f"|                     START SCORING                     |")
@@ -84,6 +83,7 @@ def process_score_event(evt: dict):
     # DATA_PROVIDER_3_SECRET = os.environ.get("DATA_PROVIDER_3_SECRET", "")
     # DATA_PROVIDER_3_REGION = os.environ.get("DATA_PROVIDER_3_REGION", "")
 
+    #load data access configs
     with open('/resources/data/data-provider-1.json', 'r', newline='') as file:
         jsonFile = json.load(file)
         DATA_PROVIDER_1_URL=jsonFile["DATA_PROVIDER_URL"]
@@ -105,6 +105,10 @@ def process_score_event(evt: dict):
         DATA_PROVIDER_3_SECRET=jsonFile["DATA_PROVIDER_SECRET"]
         DATA_PROVIDER_3_REGION=jsonFile["DATA_PROVIDER_REGION"]
 
+    #load private keys
+    with open ("demo-keys/private.pem", "r") as prv_file:
+        privateKey=prv_file
+    print (privateKey)
 
     logger.info(f"| 1. Match data with data providers                     |")
     logger.info(f"|    {DATA_PROVIDER_1_URL} |")
