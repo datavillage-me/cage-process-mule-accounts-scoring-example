@@ -1,0 +1,6 @@
+{
+    "DATA_PROVIDER_URL":"gs://muleaccounts/mule-accounts0-encrypted.parquet",
+    "DATA_PROVIDER_ENCRYPTION_KEY":"",
+    "DATA_PROVIDER_KEY":"",
+    "DATA_PROVIDER_SECRET":""
+}

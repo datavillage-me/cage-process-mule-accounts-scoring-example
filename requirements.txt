@@ -3,4 +3,5 @@
 dv-utils>=0.2.2
 pandas
 openpyxl
+dotenv
 duckdb==0.10.1
