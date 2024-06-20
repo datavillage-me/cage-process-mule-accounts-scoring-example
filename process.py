@@ -16,8 +16,8 @@ from datetime import datetime
 import base64
 
 #cryptodome
-#from Crypto.PublicKey import RSA
-#from Crypto.Cipher import PKCS1_OAEP
+from Crypto.PublicKey import RSA
+from Crypto.Cipher import PKCS1_OAEP
 
 from dv_utils import default_settings, Client 
 import duckdb
@@ -119,9 +119,9 @@ def process_score_event(evt: dict):
         DATA_PROVIDER_3_REGION=jsonFile["DATA_PROVIDER_REGION"]
 
     #load private keys
-    #with open (input_dir+"/key.pem", "r") as prv_file:
-    #    privateKey=prv_file.read()
-    #cipher = PKCS1_OAEP.new(privateKey)
+    with open (input_dir+"/key.pem", "r") as prv_file:
+        privateKey=prv_file.read()
+    cipher = PKCS1_OAEP.new(privateKey)
 
     logger.info(f"| 1. Connect data from data providers                   |")
     logger.info(f"|    {DATA_PROVIDER_1_URL} |")
@@ -158,9 +158,9 @@ def process_score_event(evt: dict):
     logger.info(f"|                                                       |")
     logger.info(f"| 2. Calculate scoring                                  |")
     for x in range(len(accountsList)):
-        #accountId=base64.b64decode(accountsList[x])
-        #accountId = cipher.decrypt(accountId).decode("utf-8")
-        accountId=accountsList[x]
+        accountId=base64.b64decode(accountsList[x])
+        accountId = cipher.decrypt(accountId).decode("utf-8")
+        #accountId=accountsList[x]
         muleOutput=find_mule_account(f"SELECT * from localdb WHERE account_id='{accountId}'")
         if muleOutput!="" :
             output=output+muleOutput+","
