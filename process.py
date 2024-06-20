@@ -147,10 +147,16 @@ def process_score_event(evt: dict):
     parquet1="'"+DATA_PROVIDER_1_URL+"', encryption_config = {footer_key: 'DATA_PROVIDER_1_ENCRYPTION_KEY'}"
     parquet2="'"+DATA_PROVIDER_2_URL+"', encryption_config = {footer_key: 'DATA_PROVIDER_2_ENCRYPTION_KEY'}"
     parquet3="'"+DATA_PROVIDER_3_URL+"', encryption_config = {footer_key: 'DATA_PROVIDER_3_ENCRYPTION_KEY'}"
-    query=f"SELECT * FROM read_parquet({parquet1}) UNION ALL SELECT * FROM read_parquet({parquet2}) UNION ALL SELECT * FROM read_parquet({parquet3})"
+    #query=f"SELECT * FROM read_parquet({parquet1}) UNION ALL SELECT * FROM read_parquet({parquet2}) UNION ALL SELECT * FROM read_parquet({parquet3})"
     logger.info("TEST 5")
-    res=duckdb.sql("CREATE TEMP TABLE localdb AS "+query) 
+    query=f"SELECT * FROM read_parquet({parquet1})"
+    res=duckdb.sql("CREATE TABLE localdb AS "+query) 
     logger.info("TEST 6")
+    query=f"SELECT * FROM read_parquet({parquet2})"
+    res=duckdb.sql("CREATE TABLE localdb AS "+query) 
+    logger.info("TEST 7")
+    query=f"SELECT * FROM read_parquet({parquet3})"
+    res=duckdb.sql("CREATE TABLE localdb AS "+query) 
     output="" 
     logger.info(f"|                                                       |")
     logger.info(f"| 2. Calculate scoring                                  |")
