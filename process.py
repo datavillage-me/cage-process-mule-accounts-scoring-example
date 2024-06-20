@@ -90,8 +90,10 @@ def process_score_event(evt: dict):
     # DATA_PROVIDER_3_SECRET = os.environ.get("DATA_PROVIDER_3_SECRET", "")
     # DATA_PROVIDER_3_REGION = os.environ.get("DATA_PROVIDER_3_REGION", "")
 
+    #load parameters
+    accountsList= evt.get("accounts", "")
+
     #load data access configs
-    
     with open(input_dir+'/data-provider-1.json', 'r', newline='') as file:
         jsonFile = json.load(file)
         DATA_PROVIDER_1_URL=jsonFile["DATA_PROVIDER_URL"]
@@ -144,7 +146,6 @@ def process_score_event(evt: dict):
         res=duckdb.sql(f"PRAGMA add_parquet_key('DATA_PROVIDER_3_ENCRYPTION_KEY', '{DATA_PROVIDER_3_ENCRYPTION_KEY}')")
         res=duckdb.sql(f"CREATE SECRET (TYPE S3,KEY_ID '{DATA_PROVIDER_3_KEY}',SECRET '{DATA_PROVIDER_3_SECRET}',REGION '{DATA_PROVIDER_3_REGION}');")
     
-        accountsList= evt.get("accounts", "")
         parquet1="'"+DATA_PROVIDER_1_URL+"', encryption_config = {footer_key: 'DATA_PROVIDER_1_ENCRYPTION_KEY'}"
         parquet2="'"+DATA_PROVIDER_2_SHARE_ACCESS_TOKEN+"', encryption_config = {footer_key: 'DATA_PROVIDER_2_ENCRYPTION_KEY'}"
         parquet3="'"+DATA_PROVIDER_3_URL+"', encryption_config = {footer_key: 'DATA_PROVIDER_3_ENCRYPTION_KEY'}"
