@@ -16,8 +16,8 @@ from datetime import datetime
 import base64
 
 #cryptodome
-from Crypto.PublicKey import RSA
 from Crypto.Cipher import PKCS1_OAEP
+from Crypto.PublicKey import RSA
 
 from dv_utils import default_settings, Client 
 import duckdb
@@ -29,6 +29,9 @@ logger = logging.getLogger(__name__)
 
 input_dir = "/resources/data"
 #input_dir = "config"
+keys_input_dir = "/resources/data"
+#keys_input_dir = "demo-keys"
+
 output_dir = "/resources/outputs"
 
 # let the log go to stdout, as it will be captured by the cage operator
@@ -119,9 +122,9 @@ def process_score_event(evt: dict):
         DATA_PROVIDER_3_REGION=jsonFile["DATA_PROVIDER_REGION"]
 
     #load private keys
-    with open (input_dir+"/key.pem", "r") as prv_file:
+    with open (keys_input_dir+"/key.pem", "rb") as prv_file:
         privateKey=prv_file.read()
-    cipher = PKCS1_OAEP.new(privateKey)
+    cipher = PKCS1_OAEP.new(RSA.importKey(privateKey))
 
     logger.info(f"| 1. Connect data from data providers                   |")
     logger.info(f"|    {DATA_PROVIDER_1_URL} |")
@@ -228,16 +231,6 @@ if __name__ == "__main__":
         ]
     }
 
-    
-    test_event = {
-        "type": "SCORE",
-        "accounts": [
-            "QNNDw0tOznVkK7s4uBL8e0D+UKL8QvzsplSj1GrbKwLoe78pStcczgkrEhhfn7gft8QTc2vexv3AamlVVXSfjw2zddyXQWWJARMiXWICAJ9BP82Ph4Hf+to+zcdLuu9CQqcfylNIgADTqnNj8rzuOuS3fnaTuLXrbcmpLUypVmLPNTef9s/tMQgKY68/ksYfOcOx3rT300xGpMihIGfkOTI6qfFHZecexWesFzqS3G7QZ2Sh4OfKH5kJQDvBPB1t78zHUHTLSnv54ZinJyd7EJoe/ylXphCqAqLeSLnWDIMBZ1/Su40Xko66e+sCdvAO6ocJ9RQgspFTqrlFh9DauA==",
-            "aWlRsY35ks028GkbBWuCxtgR4VGc3N/YHwLbSg1wYDM6Q2qxfrUH/AoVIpvzHmOu7pxAxqXG1u6lwXxTrDB8hwwnkHqIApp9V+5p4XcFAgkX/QfDeIcmjQwRJImC0ZG5OfFdqkdyX9eKQtuDaSdVhp/wntLO4pDu2SWUtaJQrnqIU+/bHJHANyIvXnmAeBF6JGxjSFE4yN9Tce53PRDH3KqTLlgBgDcz+RZAoY5YgU64Hds6iRO/dcN54MSlwuRMwXZNaNBTfLFS8kNiD2APRvvyvBPZO41z89t8SlqlEkmK22Lp3c5up0HGBYmmXUSyOK6LJG4CsvgRdWNBfhqdjA==",
-            "GS7IShwjX6+A3gIrN6vXdfed71gCVVRE0QHDhdyU3PK/FcxWv8qb0Y3y8+y4mPgl+VArIuM7/Q6er2iW+oGyZwhzlXuwrVDBRoAb/IHaGVv/eAAVTJdfVLG60H/bLO4gkXxIsQyoAbBiWfdo7M/6y5ClCsyJM5jsA0Li2DdtaCK1/Nsn9Rm7xMcDNlLE6yuNE9WCUembO0mdp+dwJ4TstVRbwbj0aQP48bSN/+yxIZ+4IOLDhH4D8TK3kzzwKSrtiP0kUSBBjyRBktpALMgP+7qruFNN4L1P598HM6UBFjuj6e5aQdN5T7CgW3F3ut5cPt3vx9Lo7GVCZbDJEp88Ag=="
-        ]
-    }
-
     test_event = {
         "type": "SCORE",
         "accounts": [
@@ -245,6 +238,13 @@ if __name__ == "__main__":
             "RO79OSQB3432547082039702",
             "DK311448088022695900"
         ]
+    }
+
+    test_event = {
+        "type": "SCORE",
+        "accounts": [
+            "cM8WNktMbOgrDiAjma9JIyRYgple1inKhvEjv8EgsUwTXVYLWSaPmr1xMy8RH5cj80T8anOlNjXZmYC2uSGTtTUYGh+Kq0ZuJPsqniiUW6N+KOZ7/h1D2KDeSAxXw3VFQmjQCD+qq82vGYXphMPmrTqVky/P+uB/WGy0/RHhKCPBzyDnaIgSQojwxfUryUXQjrkiQYES7/2GZhvvwKLulSjJJnlQYt/0XWMb2Tr712HcpcPuJs15ZjkxJLMlrNSoYud3eSneQOQEitcXanwY/gyaOHJpArj3kSfQKB+TIGI6rYunnfn9Whz58wgFCwaMdTKba0gzBWpNbrYZawzi8A=="
+   ]
     }
 
 
