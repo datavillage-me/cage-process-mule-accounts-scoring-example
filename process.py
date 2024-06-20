@@ -156,8 +156,11 @@ def process_score_event(evt: dict):
     res=duckdb.sql("CREATE TABLE localdb1 AS "+query) 
     logger.info("TEST 7")
     duckdb.sql("force install azure;")
+    logger.info("TEST 8")
     query=f"SELECT * FROM read_parquet({parquet2})"
+    logger.info("TEST 9")
     res=duckdb.sql("SET azure_transport_option_type = 'curl';")
+    logger.info("TEST 10")
     res=duckdb.sql("CREATE TABLE localdb2 AS "+query) 
     output="" 
     logger.info(f"|                                                       |")
