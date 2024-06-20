@@ -121,32 +121,37 @@ def process_score_event(evt: dict):
     #    privateKey=prv_file.read()
     #cipher = PKCS1_OAEP.new(privateKey)
 
-    logger.info(f"| 1. Match data with data providers                     |")
+    logger.info(f"| 1. Connect data from data providers                   |")
     logger.info(f"|    {DATA_PROVIDER_1_URL} |")
     logger.info(f"|    {DATA_PROVIDER_2_URL}  |")
     logger.info(f"|    {DATA_PROVIDER_3_URL} |")
 
-    #dataset1
-    res=duckdb.sql(f"PRAGMA add_parquet_key('DATA_PROVIDER_1_ENCRYPTION_KEY', '{DATA_PROVIDER_1_ENCRYPTION_KEY}')")
-    res=duckdb.sql(f"CREATE SECRET (TYPE GCS,KEY_ID '{DATA_PROVIDER_1_KEY}',SECRET '{DATA_PROVIDER_1_SECRET}');")
+    
+    #check if data exists in memory
+    res=duckdb.sql("SHOW ALL TABLES; ")
+    if len(res)==0:
+        
+        #dataset1
+        res=duckdb.sql(f"PRAGMA add_parquet_key('DATA_PROVIDER_1_ENCRYPTION_KEY', '{DATA_PROVIDER_1_ENCRYPTION_KEY}')")
+        res=duckdb.sql(f"CREATE SECRET (TYPE GCS,KEY_ID '{DATA_PROVIDER_1_KEY}',SECRET '{DATA_PROVIDER_1_SECRET}');")
 
-    #dataset2
-    res=duckdb.sql(f"PRAGMA add_parquet_key('DATA_PROVIDER_2_ENCRYPTION_KEY', '{DATA_PROVIDER_2_ENCRYPTION_KEY}')")
-    res=duckdb.sql(f"CREATE SECRET (TYPE AZURE,CONNECTION_STRING '{DATA_PROVIDER_2_CONNECTION_KEY}');")
-    res=duckdb.sql("SET azure_transport_option_type = 'curl';")
-   
-    #dataset3
-    res=duckdb.sql(f"PRAGMA add_parquet_key('DATA_PROVIDER_3_ENCRYPTION_KEY', '{DATA_PROVIDER_3_ENCRYPTION_KEY}')")
-    res=duckdb.sql(f"CREATE SECRET (TYPE S3,KEY_ID '{DATA_PROVIDER_3_KEY}',SECRET '{DATA_PROVIDER_3_SECRET}',REGION '{DATA_PROVIDER_3_REGION}');")
-   
-    accountsList= evt.get("accounts", "")
-    parquet1="'"+DATA_PROVIDER_1_URL+"', encryption_config = {footer_key: 'DATA_PROVIDER_1_ENCRYPTION_KEY'}"
-    parquet2="'"+DATA_PROVIDER_2_SHARE_ACCESS_TOKEN+"', encryption_config = {footer_key: 'DATA_PROVIDER_2_ENCRYPTION_KEY'}"
-    parquet3="'"+DATA_PROVIDER_3_URL+"', encryption_config = {footer_key: 'DATA_PROVIDER_3_ENCRYPTION_KEY'}"
-    query=f"SELECT * FROM read_parquet({parquet1}) UNION ALL SELECT * FROM read_parquet({parquet2}) UNION ALL SELECT * FROM read_parquet({parquet3})"
+        #dataset2
+        res=duckdb.sql(f"PRAGMA add_parquet_key('DATA_PROVIDER_2_ENCRYPTION_KEY', '{DATA_PROVIDER_2_ENCRYPTION_KEY}')")
+        res=duckdb.sql(f"CREATE SECRET (TYPE AZURE,CONNECTION_STRING '{DATA_PROVIDER_2_CONNECTION_KEY}');")
+        res=duckdb.sql("SET azure_transport_option_type = 'curl';")
     
+        #dataset3
+        res=duckdb.sql(f"PRAGMA add_parquet_key('DATA_PROVIDER_3_ENCRYPTION_KEY', '{DATA_PROVIDER_3_ENCRYPTION_KEY}')")
+        res=duckdb.sql(f"CREATE SECRET (TYPE S3,KEY_ID '{DATA_PROVIDER_3_KEY}',SECRET '{DATA_PROVIDER_3_SECRET}',REGION '{DATA_PROVIDER_3_REGION}');")
     
-    res=duckdb.sql("CREATE TABLE localdb AS "+query) 
+        accountsList= evt.get("accounts", "")
+        parquet1="'"+DATA_PROVIDER_1_URL+"', encryption_config = {footer_key: 'DATA_PROVIDER_1_ENCRYPTION_KEY'}"
+        parquet2="'"+DATA_PROVIDER_2_SHARE_ACCESS_TOKEN+"', encryption_config = {footer_key: 'DATA_PROVIDER_2_ENCRYPTION_KEY'}"
+        parquet3="'"+DATA_PROVIDER_3_URL+"', encryption_config = {footer_key: 'DATA_PROVIDER_3_ENCRYPTION_KEY'}"
+        query=f"SELECT * FROM read_parquet({parquet1}) UNION ALL SELECT * FROM read_parquet({parquet2}) UNION ALL SELECT * FROM read_parquet({parquet3})"
+        
+        res=duckdb.sql("CREATE TABLE localdb AS "+query) 
+
     
     output="" 
     logger.info(f"|                                                       |")
