@@ -105,6 +105,7 @@ def process_score_event(evt: dict):
         DATA_PROVIDER_2_URL=jsonFile["DATA_PROVIDER_URL"]
         DATA_PROVIDER_2_ENCRYPTION_KEY=jsonFile["DATA_PROVIDER_ENCRYPTION_KEY"]
         DATA_PROVIDER_2_CONNECTION_KEY=jsonFile["DATA_PROVIDER_CONNECTION_KEY"]
+        DATA_PROVIDER_2_SHARE_ACCESS_TOKEN=jsonFile["DATA_PROVIDER_SHARE_ACCESS_TOKEN"]
 
 
     with open(input_dir+'/data-provider-3.json', 'r', newline='') as file:
@@ -134,6 +135,7 @@ def process_score_event(evt: dict):
     #dataset2
     res=duckdb.sql(f"PRAGMA add_parquet_key('DATA_PROVIDER_2_ENCRYPTION_KEY', '{DATA_PROVIDER_2_ENCRYPTION_KEY}')")
     res=duckdb.sql(f"CREATE SECRET (TYPE AZURE,CONNECTION_STRING '{DATA_PROVIDER_2_CONNECTION_KEY}');")
+    res=duckdb.sql("SET azure_transport_option_type = 'curl';")
     #df = duckdb.sql("SELECT * FROM read_parquet('"+DATA_PROVIDER_2_URL+"', encryption_config = {footer_key: 'DATA_PROVIDER_2_ENCRYPTION_KEY'})").df()
     logger.info("TEST 2")
     #dataset3
@@ -145,7 +147,7 @@ def process_score_event(evt: dict):
     accountsList= evt.get("accounts", "")
     logger.info("TEST 4")
     parquet1="'"+DATA_PROVIDER_1_URL+"', encryption_config = {footer_key: 'DATA_PROVIDER_1_ENCRYPTION_KEY'}"
-    parquet2="'"+DATA_PROVIDER_2_URL+"', encryption_config = {footer_key: 'DATA_PROVIDER_2_ENCRYPTION_KEY'}"
+    parquet2="'"+DATA_PROVIDER_2_SHARE_ACCESS_TOKEN+"', encryption_config = {footer_key: 'DATA_PROVIDER_2_ENCRYPTION_KEY'}"
     parquet3="'"+DATA_PROVIDER_3_URL+"', encryption_config = {footer_key: 'DATA_PROVIDER_3_ENCRYPTION_KEY'}"
     #query=f"SELECT * FROM read_parquet({parquet1}) UNION ALL SELECT * FROM read_parquet({parquet2}) UNION ALL SELECT * FROM read_parquet({parquet3})"
     logger.info("TEST 5")
@@ -155,13 +157,12 @@ def process_score_event(evt: dict):
     query=f"SELECT * FROM read_parquet({parquet3})"
     res=duckdb.sql("CREATE TABLE localdb1 AS "+query) 
     logger.info("TEST 7")
-    duckdb.sql("force install azure;")
-    logger.info("TEST 8")
     query=f"SELECT * FROM read_parquet({parquet2})"
     logger.info("TEST 9")
-    res=duckdb.sql("SET azure_transport_option_type = 'curl';")
+    
     logger.info("TEST 10")
     res=duckdb.sql("CREATE TABLE localdb2 AS "+query) 
+    
     output="" 
     logger.info(f"|                                                       |")
     logger.info(f"| 2. Calculate scoring                                  |")
