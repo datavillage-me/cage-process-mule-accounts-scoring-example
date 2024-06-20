@@ -3,5 +3,5 @@
 dv-utils>=0.2.2
 pandas
 openpyxl
-cryptodome
+pycryptodome
 duckdb==1.0.0
