@@ -133,7 +133,7 @@ def process_score_event(evt: dict):
 
     #dataset2
     res=duckdb.sql(f"PRAGMA add_parquet_key('DATA_PROVIDER_2_ENCRYPTION_KEY', '{DATA_PROVIDER_2_ENCRYPTION_KEY}')")
-    res=duckdb.sql(f"SET azure_storage_connection_string = '{DATA_PROVIDER_2_CONNECTION_KEY}'")
+    res=duckdb.sql(f"CREATE SECRET (TYPE AZURE,CONNECTION_STRING '{DATA_PROVIDER_2_CONNECTION_KEY});'")
     #df = duckdb.sql("SELECT * FROM read_parquet('"+DATA_PROVIDER_2_URL+"', encryption_config = {footer_key: 'DATA_PROVIDER_2_ENCRYPTION_KEY'})").df()
     logger.info("TEST 2")
     #dataset3
