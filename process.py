@@ -133,7 +133,7 @@ def process_score_event(evt: dict):
 
     #dataset2
     res=duckdb.sql(f"PRAGMA add_parquet_key('DATA_PROVIDER_2_ENCRYPTION_KEY', '{DATA_PROVIDER_2_ENCRYPTION_KEY}')")
-    res=duckdb.sql(f"CREATE SECRET (TYPE AZURE,CONNECTION_STRING '{DATA_PROVIDER_2_CONNECTION_KEY});'")
+    res=duckdb.sql(f"CREATE SECRET (TYPE AZURE,CONNECTION_STRING '{DATA_PROVIDER_2_CONNECTION_KEY}');")
     #df = duckdb.sql("SELECT * FROM read_parquet('"+DATA_PROVIDER_2_URL+"', encryption_config = {footer_key: 'DATA_PROVIDER_2_ENCRYPTION_KEY'})").df()
     logger.info("TEST 2")
     #dataset3
@@ -153,10 +153,10 @@ def process_score_event(evt: dict):
     res=duckdb.sql("CREATE TABLE localdb AS "+query) 
     logger.info("TEST 6")
     query=f"SELECT * FROM read_parquet({parquet2})"
-    res=duckdb.sql("CREATE TABLE localdb AS "+query) 
+    res=duckdb.sql("CREATE TABLE localdb1 AS "+query) 
     logger.info("TEST 7")
     query=f"SELECT * FROM read_parquet({parquet3})"
-    res=duckdb.sql("CREATE TABLE localdb AS "+query) 
+    res=duckdb.sql("CREATE TABLE localdb2 AS "+query) 
     output="" 
     logger.info(f"|                                                       |")
     logger.info(f"| 2. Calculate scoring                                  |")
