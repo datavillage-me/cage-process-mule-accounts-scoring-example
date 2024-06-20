@@ -6,7 +6,7 @@ with open ("demo-keys/public.pem", "rb") as pub_file:
     publicKey=pub_file.read()
 key = RSA.importKey(publicKey)
 
-payload=b"DK311448088022695900"
+payload=b"GB82EVJA51473322705367"
 cipher = PKCS1_OAEP.new(key)
 ciphertext = cipher.encrypt(payload)
 
