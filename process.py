@@ -152,10 +152,10 @@ def process_score_event(evt: dict):
     query=f"SELECT * FROM read_parquet({parquet1})"
     res=duckdb.sql("CREATE TABLE localdb AS "+query) 
     logger.info("TEST 6")
-    query=f"SELECT * FROM read_parquet({parquet2})"
+    query=f"SELECT * FROM read_parquet({parquet3})"
     res=duckdb.sql("CREATE TABLE localdb1 AS "+query) 
     logger.info("TEST 7")
-    query=f"SELECT * FROM read_parquet({parquet3})"
+    query=f"SELECT * FROM read_parquet({parquet2})"
     res=duckdb.sql("CREATE TABLE localdb2 AS "+query) 
     output="" 
     logger.info(f"|                                                       |")
