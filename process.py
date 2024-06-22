@@ -158,8 +158,8 @@ def process_score_event(evt: dict):
         query=f"SELECT * FROM read_parquet({parquet2})"
         
         try:
-            os.environ['CURL_CA_PATH']="/usr/local/lib/python3.10/site-packages/certifi/"
-            os.environ['CURL_CA_INFO']="/usr/local/lib/python3.10/site-packages/certifi/cacert.pem"
+            os.environ['CURL_CA_PATH']="/etc/ssl/certs"
+            os.environ['CURL_CA_INFO']="/etc/ssl/certs/ca-certificates.crt"
             logger.info(certifi.where())
             res=duckdb.sql("CREATE TABLE localdb AS "+query) 
         except Exception as err:
