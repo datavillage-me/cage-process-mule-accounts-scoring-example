@@ -150,13 +150,17 @@ def process_score_event(evt: dict):
         res=duckdb.sql(f"CREATE SECRET (TYPE S3,KEY_ID '{DATA_PROVIDER_3_KEY}',SECRET '{DATA_PROVIDER_3_SECRET}',REGION '{DATA_PROVIDER_3_REGION}');")
     
         parquet1="'"+DATA_PROVIDER_1_URL+"', encryption_config = {footer_key: 'DATA_PROVIDER_1_ENCRYPTION_KEY'}"
-        parquet2="'"+DATA_PROVIDER_2_SHARE_ACCESS_TOKEN+"', encryption_config = {footer_key: 'DATA_PROVIDER_2_ENCRYPTION_KEY'}"
+        #parquet2="'"+DATA_PROVIDER_2_SHARE_ACCESS_TOKEN+"', encryption_config = {footer_key: 'DATA_PROVIDER_2_ENCRYPTION_KEY'}"
+        parquet2="'"+DATA_PROVIDER_2_URL+"', encryption_config = {footer_key: 'DATA_PROVIDER_2_ENCRYPTION_KEY'}"
         parquet3="'"+DATA_PROVIDER_3_URL+"', encryption_config = {footer_key: 'DATA_PROVIDER_3_ENCRYPTION_KEY'}"
-        query=f"SELECT * FROM read_parquet({parquet1}) UNION ALL SELECT * FROM read_parquet({parquet2}) UNION ALL SELECT * FROM read_parquet({parquet3})"
+        #query=f"SELECT * FROM read_parquet({parquet1}) UNION ALL SELECT * FROM read_parquet({parquet2}) UNION ALL SELECT * FROM read_parquet({parquet3})"
+        query=f"SELECT * FROM read_parquet({parquet2})"
         
-        res=duckdb.sql("CREATE TABLE localdb AS "+query) 
-
-    
+        try:
+            res=duckdb.sql("CREATE TABLE localdb AS "+query) 
+        except Exception as err:
+            logger.info(f"Unexpected {err=}, {type(err)=}")
+            
     output="" 
     logger.info(f"|                                                       |")
     logger.info(f"| 2. Calculate scoring                                  |")
