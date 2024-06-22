@@ -158,9 +158,12 @@ def process_score_event(evt: dict):
         query=f"SELECT * FROM read_parquet({parquet2})"
         
         try:
+            logger.info(os.environ['CURL_CA_INFO'])
+            logger.info(os.environ['CURL_CA_PATH'])
+            for name, value in os.environ.items():
+                print("{0}: {1}".format(name, value))
             os.environ['CURL_CA_PATH']="/etc/ssl/certs/"
             os.environ['CURL_CA_INFO']="/etc/ssl/certs/ca-certificates.crt"
-            logger.info(certifi.where())
             res=duckdb.sql("CREATE TABLE localdb AS "+query) 
         except Exception as err:
             logger.info(f"Unexpected {err=}, {type(err)=}")
