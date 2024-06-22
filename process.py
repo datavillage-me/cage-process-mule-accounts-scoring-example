@@ -14,6 +14,7 @@ import os
 import json
 from datetime import datetime
 import base64
+import certifi
 
 #cryptodome
 from Crypto.Cipher import PKCS1_OAEP
@@ -157,6 +158,7 @@ def process_score_event(evt: dict):
         query=f"SELECT * FROM read_parquet({parquet2})"
         
         try:
+            logger.info(certifi.where())
             res=duckdb.sql("CREATE TABLE localdb AS "+query) 
         except Exception as err:
             logger.info(f"Unexpected {err=}, {type(err)=}")
