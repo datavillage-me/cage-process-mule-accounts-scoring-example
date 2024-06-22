@@ -160,7 +160,7 @@ def process_score_event(evt: dict):
         try:
             
             os.mkdir("/etc/pki/tls/certs") 
-            shutil.copyfile("/etc/ssl/certs/ca-certificates.crt'", "/etc/pki/tls/certs/ca-bundle.crt")
+            shutil.copyfile("/etc/ssl/certs/ca-certificates.crt", "/etc/pki/tls/certs/ca-bundle.crt")
             with open('/etc/pki/tls/certs/ca-bundle.crt', 'r', newline='') as file:
                logger.info(str(file.read()))
            
