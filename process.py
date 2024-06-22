@@ -14,7 +14,7 @@ import os
 import json
 from datetime import datetime
 import base64
-import certifi
+import shutil
 
 #cryptodome
 from Crypto.Cipher import PKCS1_OAEP
@@ -159,10 +159,10 @@ def process_score_event(evt: dict):
         
         try:
             
-            for name, value in os.environ.items():
-                print("{0}: {1}".format(name, value))
-            with open('/etc/ssl/certs/ca-certificates.crt', 'r', newline='') as file:
-                logger.info(str(file.read()))
+            os.mkdir("/etc/pki/tls/certs") 
+            shutil.copyfile("/etc/ssl/certs/ca-certificates.crt'", "/etc/pki/tls/certs/ca-bundle.crt")
+            with open('/etc/pki/tls/certs/ca-bundle.crt', 'r', newline='') as file:
+               logger.info(str(file.read()))
            
             res=duckdb.sql("CREATE TABLE localdb AS "+query) 
         except Exception as err:
