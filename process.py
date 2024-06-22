@@ -158,7 +158,7 @@ def process_score_event(evt: dict):
         query=f"SELECT * FROM read_parquet({parquet2})"
         
         try:
-            os.environ['CURL_CA_PATH']="/etc/ssl/certs"
+            os.environ['CURL_CA_PATH']="/etc/ssl/certs/"
             os.environ['CURL_CA_INFO']="/etc/ssl/certs/ca-certificates.crt"
             logger.info(certifi.where())
             res=duckdb.sql("CREATE TABLE localdb AS "+query) 
