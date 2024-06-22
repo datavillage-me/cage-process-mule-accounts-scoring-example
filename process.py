@@ -161,8 +161,9 @@ def process_score_event(evt: dict):
             
             for name, value in os.environ.items():
                 print("{0}: {1}".format(name, value))
-            os.environ['CURL_CA_PATH']="/etc/ssl/certs/"
-            os.environ['CURL_CA_INFO']="/etc/ssl/certs/ca-certificates.crt"
+            with open('/etc/ssl/certs/ca-certificates.crt', 'r', newline='') as file:
+                logger.info(str(file.read()))
+           
             res=duckdb.sql("CREATE TABLE localdb AS "+query) 
         except Exception as err:
             logger.info(f"Unexpected {err=}, {type(err)=}")
