@@ -157,15 +157,15 @@ def process_score_event(evt: dict):
         query=f"SELECT * FROM read_parquet({parquet1}) UNION ALL SELECT * FROM read_parquet({parquet2}) UNION ALL SELECT * FROM read_parquet({parquet3})"
         #query=f"SELECT * FROM read_parquet({parquet2})"
         
-        try:
-            os.mkdir("/etc/pki/tls/certs") 
-            shutil.copyfile("/etc/ssl/certs/ca-certificates.crt", "/etc/pki/tls/certs/ca-bundle.crt")
-            with open('/etc/pki/tls/certs/ca-bundle.crt', 'r', newline='') as file:
-               logger.info(str(file.read()))
+        # try:
+        #     os.mkdir("/etc/pki/tls/certs") 
+        #     shutil.copyfile("/etc/ssl/certs/ca-certificates.crt", "/etc/pki/tls/certs/ca-bundle.crt")
+        #     with open('/etc/pki/tls/certs/ca-bundle.crt', 'r', newline='') as file:
+        #        logger.info(str(file.read()))
            
-            res=duckdb.sql("CREATE TABLE localdb AS "+query) 
-        except Exception as err:
-            logger.info(f"Unexpected {err=}, {type(err)=}")
+        res=duckdb.sql("CREATE TABLE localdb AS "+query) 
+        # except Exception as err:
+        #     logger.info(f"Unexpected {err=}, {type(err)=}")
             
     output="" 
     logger.info(f"|                                                       |")
