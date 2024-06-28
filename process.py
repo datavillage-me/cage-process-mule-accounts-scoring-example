@@ -125,7 +125,7 @@ def process_score_event(evt: dict):
     #load public keys
     with open (keys_input_dir+"/public.pem", "rb") as prv_file:
         publicKey=prv_file.read()
-     with open('/resources/outputs/public.pem', 'wb', newline='') as file:
+    with open('/resources/outputs/public.pem', 'wb') as file:
         file.write(publicKey)
 
 
