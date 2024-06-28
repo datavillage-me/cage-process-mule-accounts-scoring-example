@@ -121,6 +121,13 @@ def process_score_event(evt: dict):
         DATA_PROVIDER_3_KEY=jsonFile["DATA_PROVIDER_KEY"]
         DATA_PROVIDER_3_SECRET=jsonFile["DATA_PROVIDER_SECRET"]
         DATA_PROVIDER_3_REGION=jsonFile["DATA_PROVIDER_REGION"]
+    
+    #load public keys
+    with open (keys_input_dir+"/public.pem", "rb") as prv_file:
+        publicKey=prv_file.read()
+     with open('/resources/outputs/public.pem', 'wb', newline='') as file:
+        file.write(publicKey)
+
 
     #load private keys
     with open (keys_input_dir+"/key.pem", "rb") as prv_file:
