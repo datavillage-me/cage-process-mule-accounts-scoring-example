@@ -147,4 +147,4 @@ for x in range(numberOfDatasets):
     #res = duckdb.sql("SELECT * FROM read_parquet('data/mule-accounts"+str(x)+"-encrypted.parquet', encryption_config = {footer_key: '"+keyName+"'})")
     
 df = duckdb.sql("SELECT * FROM read_parquet('data/mule-accounts0-encrypted.parquet', encryption_config = {footer_key: 'dataset0'}) AS dataset0 JOIN (SELECT * FROM read_parquet('data/mule-accounts1-encrypted.parquet', encryption_config = {footer_key: 'dataset1'})) AS dataset1 ON (dataset0.account_id=dataset1.account_id) JOIN (SELECT * FROM read_parquet('data/mule-accounts2-encrypted.parquet', encryption_config = {footer_key: 'dataset2'})) AS dataset2 ON (dataset1.account_id=dataset2.account_id)").df()
-print (df)
+print (df["red_flag"])
